@@ -3,6 +3,8 @@ This example demonstrates implementing CapSense buttons and slider for PSoC 6 MC
 
 # Instructions to run the CapSense code example
 
+Plug in the kit, and connect a serial terminal with 9600-8N1 setting to view the button status and slider position.
+
 1. Import the code example
  
         mbed import https://github.com/cypresssemiconductorco/mbed-os-example-capsense
@@ -26,8 +28,6 @@ This example demonstrates implementing CapSense buttons and slider for PSoC 6 MC
         Application has started. Touch any CapSense button or slider.
 
 5. Touch the buttons or the slider to observe the red LED changing its state. 
-
-6. Connect to the kit using a serial terminal with 9600-8N1 setting to view the button status and slider position.
 
 6. You can also monitor the CapSense data using the CapSense Tuner application as explained below.
 
