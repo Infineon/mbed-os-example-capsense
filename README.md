@@ -1,5 +1,5 @@
 # Introduction
-This example demonstrates implementing CapSense buttons and slider for PSoC 6 MCU with Mbed OS.
+This example demonstrates implementing CapSense buttons and slider for PSoC 6 MCU with Mbed OS. Additional PSoC 6-related code examples are available in other repos. See all examples at [Code Examples for Modus Toolbox](https://github.com/cypresssemiconductorco/Code-Examples-for-ModusToolbox-Software).
 
 # Instructions to run the CapSense code example
 
