@@ -1,9 +1,7 @@
 # Introduction
-This example demonstrates implementing CapSense buttons and slider for PSoC 6 MCU with Mbed OS. Additional PSoC 6-related code examples are available in other repos. See all examples at [Code Examples for Modus Toolbox](https://github.com/cypresssemiconductorco/Code-Examples-for-ModusToolbox-Software).
+This example demonstrates implementing CapSense® buttons and slider for PSoC® 6 MCU with Mbed OS using the [CapSense Middleware Library](https://github.com/cypresssemiconductorco/middleware-capsense). Additional PSoC 6-related code examples are available in other repos. See all examples at [Code Examples for Modus Toolbox](https://github.com/cypresssemiconductorco/Code-Examples-for-ModusToolbox-Software).
 
 # Instructions to run the CapSense code example
-
-Plug in the kit, and connect a serial terminal with 9600-8N1 setting to view the button status and slider position.
 
 1. Import the code example
  
@@ -13,37 +11,42 @@ Plug in the kit, and connect a serial terminal with 9600-8N1 setting to view the
         
         cd mbed-os-example-capsense
 
-3. Compile the example and Program
-    
-        mbed compile --target CY8CKIT_062_BLE --toolchain GCC_ARM  --flash --sterm
+3. Plug in the kit and ensure the kit is in DAPLink mode to allow programming from Mbed CLI. See *Switch Kit to DAPLink Mode* section in [ModusToolbox IDE User Guide](https://www.cypress.com/ModusToolboxUserGuide) for details. 
 
-        This command compiles, programs the kit, and opens the Mbed serial port with 9600, 8N1 setting on the command prompt window. 
+4. Compile the example and Program
+    
+        mbed compile --target CY8CPROTO_062_4343W --toolchain GCC_ARM --flash --sterm
 
         For other targets:
         mbed compile -m CY8CKIT_062_WIFI_BT -t GCC_ARM -f --sterm
-        mbed compile -m CY8CPROTO_062_4343W -t GCC_ARM -f --sterm
+        mbed compile -m CY8CKIT_062_BLE -t GCC_ARM -f --sterm
+
+    **Note:** The *--sterm* option opens the serial terminal with 9600-8N1 setting on the command prompt itself after programming completes. Do not use this option if you wish to connect using another serial terminal application.
 
 4. Following message is displayed on the serial terminal when the application starts running.
 
         Application has started. Touch any CapSense button or slider.
 
-5. Touch the buttons or the slider to observe the red LED changing its state. 
+5. Touch the buttons or the slider to observe the red LED changing its state and the status printed on the serial terminal. 
 
 6. You can also monitor the CapSense data using the CapSense Tuner application as explained below.
 
 # How to monitor data using CapSense Tuner
 
-1. Open ".../ModusToolbox_1.1/tools/capsense-configurator-1.1/capsense-tuner" to run the CapSense Tuner application. 
+1. Open *\<user_home>/ModusToolbox_\<version>/tools/capsense-configurator-\<version>/capsense-tuner* to run the CapSense Tuner application. 
 
 2. Click File -> Open and open cycfg_capsense.h file which is available in this example directory. 
 
-3. Switch from DAPLink mode to KitProg mode by pressing the MODE button or CUSTOM APP button depending on the kit. Refer to the kit user guide for more information. 
+3. Switch from DAPLink mode to KitProg mode. 
+
+- For single-button kits (CY8CPROTO_062_4343W) press button SW3 (MODE) for more than 2 seconds and release.
+- For two-button kits (CY8CKIT_062_BLE and CY8CKIT_062_WIFI_BT) press and release button SW4 (CUSTOM APP).
 
 4. In the Tuner application, click the settings icon or click Tools -> Tuner Communication Setup. In the window that appears, select I2C under KitProg and configure as follows. 
 
         I2C Address: 8
         Sub-address: 2-Bytes
-        Speed (kHz): 100
+        Speed (kHz): 400
 
 5. Click the Connect button or Communiction -> Connect.
 
@@ -57,8 +60,18 @@ See the ModusToolbox CapSense Tuner Guide (Help -> View Help) for more informati
 
 In this process, you cannot modify the pins or add/delete the CapSense widgets. You can only modify the CapSense settings such as IDAC, clock, threshold etc. 
 
-1. Open ".../ModusToolbox_1.1/tools/capsense-configurator-1.1/capsense-configurator" to run the CapSense Configurator application. 
+1. Open *\<user_home>/ModusToolbox_\<version>/tools/capsense-configurator-\<version>/capsense-configurator* to run the CapSense Configurator application. 
 
 2. Click File -> Open and open cycfg_capsense.h file which is available in this example directory.
 
 3. When you save the changes, the tool updates cycfg_capsense.h and cfg_capsense.c files in this example project. 
+
+# Reference
+
+- CapSense Middleware API Reference - See *pdl_api_reference_manual.html* under ModusToolbox installation directory *\<user_home>/ModusToolbox_\<version>/libraries/psoc6sw-\<version>/docs*
+- [CapSense Configurator Guide](https://www.cypress.com/ModusToolboxCapSenseConfig)
+- [CapSense Tuner Guide](https://www.cypress.com/ModusToolboxCapSenseTuner)
+- [ModusToolbox IDE User Guide](https://www.cypress.com/ModusToolboxUserGuide)
+- [CY8CPROTO-062-4343W PSoC 6 Wi-Fi BT Prototyping kit](http://www.cypress.com/documentation/development-kitsboards/cy8cproto-063-4343w)
+- [CY8CKIT-062-WiFi-BT PSoC 6 WiFi-BT Pioneer Kit](http://www.cypress.com/documentation/development-kitsboards/psoc-6-wifi-bt-pioneer-kit)
+- [CY8CKIT-062-BLE PSoC 6 BLE Pioneer Kit](http://www.cypress.com/documentation/development-kitsboards/psoc-6-ble-pioneer-kit)
