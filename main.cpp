@@ -102,7 +102,7 @@ const cy_stc_sysint_t EZI2C_ISR_cfg = {
 * Global variables
 *******************************************************************************/
 DigitalOut ledRed(LED_RED);
-Semaphore capsense_sem(1);
+Semaphore capsense_sem;
 EventQueue queue;
 cy_stc_scb_ezi2c_context_t EZI2C_context;
 uint32_t prevBtn0Status = 0u; 
@@ -165,15 +165,11 @@ int main(void)
 *****************************************************************************/
 void RunCapSenseScan(void)
 {
-    /* The first wait() will always obtain the semaphore even if release() was
-     * not called which is acceptable since the first scan has already been 
-     * initiated. 
-     */
+    Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
     capsense_sem.wait();          
     Cy_CapSense_ProcessAllWidgets(&cy_capsense_context);
     Cy_CapSense_RunTuner(&cy_capsense_context);
     ProcessTouchStatus();     
-    Cy_CapSense_ScanAllWidgets(&cy_capsense_context); 
 }
 
 /*******************************************************************************
