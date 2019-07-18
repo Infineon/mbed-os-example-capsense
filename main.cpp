@@ -1,10 +1,10 @@
 /*******************************************************************************
 * File Name: main.cpp
 *
-* Version: 1.0
+* Version: 1.1
 *
 * Description:
-* 	This example demonstrates implementing CapSense buttons and slider with Mbed
+*   This example demonstrates implementing CapSense buttons and slider with Mbed
 *   OS. This example implements two button widgets and a slider widget, turns an
 *   LED ON when any of the widgets is touched and OFF when none of them are 
 *   touched, and prints the button status and slider position over serial port. 
@@ -65,6 +65,8 @@
 #include "mbed.h"
 #include "cy_pdl.h"
 #include "cycfg_capsense.h"
+#include "cycfg.h"
+
 
 /***************************************************************************
 * Global constants
@@ -73,6 +75,7 @@
 #define LED_OFF                                 (1u) 
 #define LED_ON                                  (0u)
 #define CAPSENSE_SCAN_PERIOD                    (20u)   /* milliseconds */
+
 
 /***************************************
 * Function Prototypes
@@ -83,20 +86,23 @@ void ProcessTouchStatus(void);
 void EZI2C_InterruptHandler(void);
 void CapSense_InterruptHandler(void);
 void CapSenseEndOfScanCallback(cy_stc_active_scan_sns_t * ptrActiveScan);
+void InitCapSenseClock(void);
+
 
 /*******************************************************************************
 * Interrupt configuration
 *******************************************************************************/
 const cy_stc_sysint_t CapSense_ISR_cfg =
 {
-    .intrSrc = CapSense_IRQ,
-    .intrPriority = 7u
+    .intrSrc = CYBSP_CSD_IRQ,
+    .intrPriority = 4u
 };
 
 const cy_stc_sysint_t EZI2C_ISR_cfg = {
-    .intrSrc = CSD_COMM_IRQ,
+    .intrSrc = CYBSP_CSD_COMM_IRQ,
     .intrPriority = 3u
 };
+
 
 /*******************************************************************************
 * Global variables
@@ -109,6 +115,7 @@ uint32_t prevBtn0Status = 0u;
 uint32_t prevBtn1Status = 0u;
 uint32_t prevSliderPos = 0u;
 
+
 /*****************************************************************************
 * Function Name: main()
 ******************************************************************************
@@ -119,8 +126,13 @@ uint32_t prevSliderPos = 0u;
 *****************************************************************************/
 int main(void)
 {
+    /* Configure AMUX bus for CapSense */
+    init_cycfg_routing();
+    
+    /* Configure PERI clocks for CapSense */
+    InitCapSenseClock();    
     InitTunerCommunication();
-
+    
     /* Initialize the CSD HW block to the default state. */
     cy_status status = Cy_CapSense_Init(&cy_capsense_context);
     if(CY_RET_SUCCESS != status)
@@ -128,7 +140,7 @@ int main(void)
         printf("CapSense initialization failed. Status code: %lu\r\n", status);
         wait(osWaitForever);
     }
-
+    
     /* Initialize CapSense interrupt */
     Cy_SysInt_Init(&CapSense_ISR_cfg, &CapSense_InterruptHandler);
     NVIC_ClearPendingIRQ(CapSense_ISR_cfg.intrSrc);
@@ -153,7 +165,9 @@ int main(void)
     
     printf("Application has started. Touch any CapSense button or slider.\r\n");
     wait(osWaitForever);
+    
 }
+
 
 /*****************************************************************************
 * Function Name: RunCapSenseScan()
@@ -166,11 +180,12 @@ int main(void)
 void RunCapSenseScan(void)
 {
     Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
-    capsense_sem.wait();          
+    capsense_sem.acquire();          
     Cy_CapSense_ProcessAllWidgets(&cy_capsense_context);
     Cy_CapSense_RunTuner(&cy_capsense_context);
     ProcessTouchStatus();     
 }
+
 
 /*******************************************************************************
 * Function Name: InitTunerCommunication
@@ -185,7 +200,7 @@ void RunCapSenseScan(void)
 *******************************************************************************/
 void InitTunerCommunication(void)
 {
-    Cy_SCB_EZI2C_Init(CSD_COMM_HW, &CSD_COMM_config, &EZI2C_context);
+    Cy_SCB_EZI2C_Init(CYBSP_CSD_COMM_HW, &CYBSP_CSD_COMM_config, &EZI2C_context);
 
     /* Initialize and enable EZI2C interrupts */
     Cy_SysInt_Init(&EZI2C_ISR_cfg, &EZI2C_InterruptHandler);
@@ -194,11 +209,11 @@ void InitTunerCommunication(void)
     /* Set up communication data buffer to CapSense data structure to be exposed
      * to I2C master at primary slave address request.
      */
-    Cy_SCB_EZI2C_SetBuffer1(CSD_COMM_HW, (uint8 *)&cy_capsense_tuner,
+    Cy_SCB_EZI2C_SetBuffer1(CYBSP_CSD_COMM_HW, (uint8 *)&cy_capsense_tuner,
         sizeof(cy_capsense_tuner), sizeof(cy_capsense_tuner), &EZI2C_context);
 
     /* Enable EZI2C block */
-    Cy_SCB_EZI2C_Enable(CSD_COMM_HW);
+    Cy_SCB_EZI2C_Enable(CYBSP_CSD_COMM_HW);
 }
 
 
@@ -244,6 +259,7 @@ void ProcessTouchStatus(void)
     ledRed = (currBtn0Status || currBtn1Status || (sldrTouch->numPosition == SLIDER_NUM_TOUCH)) ? LED_ON : LED_OFF;
 }
 
+
 /*******************************************************************************
 * Function Name: EZI2C_InterruptHandler
 ********************************************************************************
@@ -253,7 +269,7 @@ void ProcessTouchStatus(void)
 *******************************************************************************/
 void EZI2C_InterruptHandler(void)
 {
-    Cy_SCB_EZI2C_Interrupt(CSD_COMM_HW, &EZI2C_context);
+    Cy_SCB_EZI2C_Interrupt(CYBSP_CSD_COMM_HW, &EZI2C_context);
 }
 
 /*****************************************************************************
@@ -265,8 +281,9 @@ void EZI2C_InterruptHandler(void)
 *****************************************************************************/
 void CapSense_InterruptHandler(void)
 {
-    Cy_CapSense_InterruptHandler(CapSense_HW, &cy_capsense_context);
+    Cy_CapSense_InterruptHandler(CYBSP_CSD_HW, &cy_capsense_context);
 }
+
 
 /*****************************************************************************
 * Function Name: CapSenseEndOfScanCallback()
@@ -280,7 +297,23 @@ void CapSense_InterruptHandler(void)
 *****************************************************************************/
 void CapSenseEndOfScanCallback(cy_stc_active_scan_sns_t * ptrActiveScan)
 {
-	capsense_sem.release();
+    capsense_sem.release();
+}
+
+
+/*****************************************************************************
+* Function Name: InitCapSenseClock()
+******************************************************************************
+* Summary:
+*  This function configures the peripheral clock for CapSense.  
+*
+*****************************************************************************/
+void InitCapSenseClock(void)
+{
+    Cy_SysClk_PeriphAssignDivider(PCLK_CSD_CLOCK, CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
+    Cy_SysClk_PeriphDisableDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
+    Cy_SysClk_PeriphSetDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM, 0u);
+    Cy_SysClk_PeriphEnableDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
 }
 
 
