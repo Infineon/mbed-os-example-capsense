@@ -62,7 +62,7 @@ See the ModusToolbox CapSense Tuner Guide (Help -> View Help) for more informati
 
 # Reference
 
-- CapSense Middleware API Reference - See *pdl_api_reference_manual.html* under ModusToolbox installation directory *\<user_home>/ModusToolbox_\<version>/libraries/psoc6sw-\<version>/docs*
+- [CapSense Middleware API Reference Guide](https://cypresssemiconductorco.github.io/capsense/capsense_api_reference_manual/html/index.html)
 - [CapSense Configurator Guide](https://www.cypress.com/ModusToolboxCapSenseConfig)
 - [CapSense Tuner Guide](https://www.cypress.com/ModusToolboxCapSenseTuner)
 - [ModusToolbox IDE User Guide](https://www.cypress.com/ModusToolboxUserGuide)
