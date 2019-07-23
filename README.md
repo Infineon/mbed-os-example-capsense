@@ -11,7 +11,7 @@ This example demonstrates implementing CapSense® buttons and slider for PSoC® 
    
         cd mbed-os-example-capsense
 
-3. Plug in the kit and ensure the kit is in DAPLink mode to allow programming from Mbed CLI. See *Switch Kit to DAPLink Mode* section in [ModusToolbox IDE User Guide](https://www.cypress.com/ModusToolboxUserGuide) for details. 
+3. Plug in the CY8CPROTO-062-4343W kit. Ensure that the kit has the latest version of KitProg3 firmware and is in DAPLink mode to allow programming from Mbed CLI. See [Firmware-loader](https://github.com/cypresssemiconductorco/Firmware-loader) for more information on how to update the firmware and switch to DAPLink mode. 
 
 4. Ensure the kit is configured to operate at 3.3 V. See the kit user guide to learn how to configure the power supply. 
 
