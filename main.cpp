@@ -1,7 +1,7 @@
 /*******************************************************************************
 * File Name: main.cpp
 *
-* Version: 1.1
+* Version: 1.2
 *
 * Description:
 *   This example demonstrates implementing CapSense buttons and slider with Mbed
@@ -74,7 +74,7 @@
 #define SLIDER_NUM_TOUCH                        (1u)    /* Number of touches on the slider */
 #define LED_OFF                                 (1u) 
 #define LED_ON                                  (0u)
-#define CAPSENSE_SCAN_PERIOD                    (20u)   /* milliseconds */
+#define CAPSENSE_SCAN_PERIOD_MS                 (20u)   /* milliseconds */
 
 
 /***************************************
@@ -130,7 +130,8 @@ int main(void)
     init_cycfg_routing();
     
     /* Configure PERI clocks for CapSense */
-    InitCapSenseClock();    
+    InitCapSenseClock(); 
+    
     InitTunerCommunication();
     
     /* Initialize the CSD HW block to the default state. */
@@ -155,15 +156,15 @@ int main(void)
      */
     Thread thread(osPriorityNormal, OS_STACK_SIZE, NULL, "CapSense Scan Thread");
     thread.start(callback(&queue, &EventQueue::dispatch_forever));
-    queue.call_every(CAPSENSE_SCAN_PERIOD, RunCapSenseScan);
+    queue.call_every(CAPSENSE_SCAN_PERIOD_MS, RunCapSenseScan);
 
     /* Initiate scan immediately since the first call of RunCapSenseScan()
-     * happens CAPSENSE_SCAN_PERIOD after the event queue dispatcher has
+     * happens CAPSENSE_SCAN_PERIOD_MS after the event queue dispatcher has
      * started. 
      */
     Cy_CapSense_ScanAllWidgets(&cy_capsense_context); 
     
-    printf("Application has started. Touch any CapSense button or slider.\r\n");
+    printf("\r\nApplication has started. Touch any CapSense button or slider.\r\n");
     wait(osWaitForever);
     
 }
@@ -193,13 +194,24 @@ void RunCapSenseScan(void)
 *
 * Summary:
 *   This function performs the following functions:
-*       - Initializes SCB block for operation in EZI2C mode.
-*       - Connects EZI2C HW to the SDA and SCL pins.
-*       - Sets communication data buffer to CapSense data structure.
+*       - Initializes SCB block for operation in EZI2C mode
+*       - Configures EZI2C pins
+*       - Configures EZI2C clock
+*       - Sets communication data buffer to CapSense data structure
 *
 *******************************************************************************/
 void InitTunerCommunication(void)
 {
+    /* Initialize EZI2C pins */
+    Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);
+    Cy_GPIO_Pin_Init(CYBSP_EZI2C_SDA_PORT, CYBSP_EZI2C_SDA_PIN, &CYBSP_EZI2C_SDA_config);
+    
+    /* Configure the peripheral clock for EZI2C */
+    Cy_SysClk_PeriphAssignDivider(PCLK_SCB3_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
+    Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
+    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1U, 7U);
+    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
+    
     Cy_SCB_EZI2C_Init(CYBSP_CSD_COMM_HW, &CYBSP_CSD_COMM_config, &EZI2C_context);
 
     /* Initialize and enable EZI2C interrupts */

@@ -41,10 +41,7 @@ This example demonstrates implementing CapSense® buttons and slider for PSoC® 
 
 2. Click File -> Open and open cycfg_capsense.h file which is available in this example directory. 
 
-3. Switch from DAPLink mode to KitProg mode. 
-
-- For single-button kits (CY8CPROTO_062_4343W) press button SW3 (MODE) for more than 2 seconds and release.
-- For two-button kits (CY8CKIT_062_BLE and CY8CKIT_062_WIFI_BT) press and release button SW4 (CUSTOM APP).
+3. Switch from DAPLink mode to KitProg mode. See [Firmware-loader](https://github.com/cypresssemiconductorco/Firmware-loader) for more information on how to update the firmware and switch to DAPLink mode.
 
 4. In the Tuner application, click the settings icon or click Tools -> Tuner Communication Setup. In the window that appears, select I2C under KitProg and configure as follows. 
 
@@ -76,4 +73,5 @@ See the ModusToolbox CapSense Tuner Guide (Help -> View Help) for more informati
 | ------- | ------------------------------------------------------------ |
 | 1.0     | Initial release.<br>Tested with mbed-os v5.11.4 and CapSense middleware  v1.2 |
 | 1.1     | Minor update. <br>Tested with mbed-os v5.13.1 and CapSense middleware  v2.0 |
+| 1.2     | Updated to work with CapSense Tuner in ModusToolbox 1.1<br>Tested with mbed-os v5.14 and CapSense middleware v2.0      |
 
