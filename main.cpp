@@ -1,8 +1,6 @@
 /*******************************************************************************
 * File Name: main.cpp
 *
-* Version: 1.2
-*
 * Description:
 *   This example demonstrates implementing CapSense buttons and slider with Mbed
 *   OS. This example implements two button widgets and a slider widget, turns an
@@ -21,25 +19,21 @@
 *
 * Related Document: README.md
 *
-* Supported Kits (Target Names): 
-*   CY8CKIT-062-BLE PSoC 6 BLE Pioneer Kit (CY8CKIT_062_BLE)
-*   CY8CKIT-062-WiFi-BT PSoC 6 WiFi-BT Pioneer Kit (CY8CKIT_062_WIFI_BT)
-*   CY8CPROTO-062-4343W PSoC 6 Wi-Fi BT Prototyping Kit (CY8CPROTO_062_4343W)
 *
 *******************************************************************************
-* Copyright (2019), Cypress Semiconductor Corporation. All rights reserved.
+* (c) 2019, Cypress Semiconductor Corporation. All rights reserved.
 *******************************************************************************
 * This software, including source code, documentation and related materials
-* (“Software”), is owned by Cypress Semiconductor Corporation or one of its
-* subsidiaries (“Cypress”) and is protected by and subject to worldwide patent
+* ("Software"), is owned by Cypress Semiconductor Corporation or one of its
+* subsidiaries ("Cypress") and is protected by and subject to worldwide patent
 * protection (United States and foreign), United States copyright laws and
 * international treaty provisions. Therefore, you may use this Software only
 * as provided in the license agreement accompanying the software package from
-* which you obtained this Software (“EULA”).
+* which you obtained this Software ("EULA").
 *
-* If no EULA applies, Cypress hereby grants you a personal, nonexclusive,
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
 * non-transferable license to copy, modify, and compile the Software source
-* code solely for use in connection with Cypress’s integrated circuit products.
+* code solely for use in connection with Cypress's integrated circuit products.
 * Any reproduction, modification, translation, compilation, or representation
 * of this Software except as specified above is prohibited without the express
 * written permission of Cypress.
@@ -52,8 +46,8 @@
 * Software or any product or circuit described in the Software. Cypress does
 * not authorize its products for use in any products where a malfunction or
 * failure of the Cypress product may reasonably be expected to result in
-* significant property damage, injury or death (“High Risk Product”). By
-* including Cypress’s product in a High Risk Product, the manufacturer of such
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer of such
 * system or application assumes all risk of such use and in doing so agrees to
 * indemnify Cypress against all liability.
 *******************************************************************************/
@@ -74,7 +68,8 @@
 #define SLIDER_NUM_TOUCH                        (1u)    /* Number of touches on the slider */
 #define LED_OFF                                 (1u) 
 #define LED_ON                                  (0u)
-#define CAPSENSE_SCAN_PERIOD_MS                 (20u)   /* milliseconds */
+#define CAPSENSE_SCAN_PERIOD_MS                 (20u)   /* defines periodicity of \
+                        the CapSense scan and touch processing - in milliseconds */
 
 
 /***************************************
@@ -107,7 +102,7 @@ const cy_stc_sysint_t EZI2C_ISR_cfg = {
 /*******************************************************************************
 * Global variables
 *******************************************************************************/
-DigitalOut ledRed(LED_RED);
+DigitalOut ledStatus(LED_RED);
 Semaphore capsense_sem;
 EventQueue queue;
 cy_stc_scb_ezi2c_context_t EZI2C_context;
@@ -180,11 +175,14 @@ int main(void)
 *****************************************************************************/
 void RunCapSenseScan(void)
 {
-    Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
-    capsense_sem.acquire();          
+    if (CY_CAPSENSE_NOT_BUSY == Cy_CapSense_IsBusy(&cy_capsense_context))
+    {
+        Cy_CapSense_ScanAllWidgets(&cy_capsense_context);  
+    } 
+    capsense_sem.acquire();
     Cy_CapSense_ProcessAllWidgets(&cy_capsense_context);
     Cy_CapSense_RunTuner(&cy_capsense_context);
-    ProcessTouchStatus();     
+    ProcessTouchStatus();
 }
 
 
@@ -268,7 +266,7 @@ void ProcessTouchStatus(void)
         }
     }
 
-    ledRed = (currBtn0Status || currBtn1Status || (sldrTouch->numPosition == SLIDER_NUM_TOUCH)) ? LED_ON : LED_OFF;
+    ledStatus = (currBtn0Status || currBtn1Status || (sldrTouch->numPosition == SLIDER_NUM_TOUCH)) ? LED_ON : LED_OFF;
 }
 
 
@@ -327,6 +325,5 @@ void InitCapSenseClock(void)
     Cy_SysClk_PeriphSetDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM, 0u);
     Cy_SysClk_PeriphEnableDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
 }
-
 
 /* [] END OF FILE */
