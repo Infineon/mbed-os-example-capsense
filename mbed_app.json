@@ -1,8 +1,31 @@
 {
     "target_overrides": {
         "*": {
-            "platform.stdio-convert-newlines": true,
-            "target.components_remove": ["BSP_DESIGN_MODUS"]
+            "platform.stdio-convert-newlines": true
+        },
+        "CY8CPROTO_062_4343W": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
+        "CY8CKIT_062S2_43012": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
+        "CY8CKIT_062_WIFI_BT": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
+        "CY8CKIT_062_BLE": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
+        "CYW9P62S1_43012EVB_01": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
+        "CYW9P62S1_43438EVB_01": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
         }
     }
 }

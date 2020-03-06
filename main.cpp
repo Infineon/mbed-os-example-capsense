@@ -20,9 +20,9 @@
 * Related Document: README.md
 *
 *
-*******************************************************************************
-* (c) 2019, Cypress Semiconductor Corporation. All rights reserved.
-*******************************************************************************
+********************************************************************************
+* (c) 2020, Cypress Semiconductor Corporation. All rights reserved.
+********************************************************************************
 * This software, including source code, documentation and related materials
 * ("Software"), is owned by Cypress Semiconductor Corporation or one of its
 * subsidiaries ("Cypress") and is protected by and subject to worldwide patent
@@ -55,22 +55,26 @@
 
 /*******************************************************************************
 * Header files including
-********************************************************************************/
+*******************************************************************************/
 #include "mbed.h"
 #include "cy_pdl.h"
 #include "cycfg_capsense.h"
 #include "cycfg.h"
+#include "cybsp.h"
 
 
-/***************************************************************************
+/*******************************************************************************
 * Global constants
-***************************************************************************/
-#define SLIDER_NUM_TOUCH                        (1u)    /* Number of touches on the slider */
-#define LED_OFF                                 (1u) 
+*******************************************************************************/
+/* Number of touches on the slider */
+#define SLIDER_NUM_TOUCH                        (1u)
+#define LED_OFF                                 (1u)
 #define LED_ON                                  (0u)
-#define CAPSENSE_SCAN_PERIOD_MS                 (20u)   /* defines periodicity of \
-                        the CapSense scan and touch processing - in milliseconds */
 
+/* Defines periodicity of the CapSense scan and touch processing in
+ * milliseconds.
+ */
+#define CAPSENSE_SCAN_PERIOD_MS                 (20u)
 
 /***************************************
 * Function Prototypes
@@ -81,8 +85,6 @@ void ProcessTouchStatus(void);
 void EZI2C_InterruptHandler(void);
 void CapSense_InterruptHandler(void);
 void CapSenseEndOfScanCallback(cy_stc_active_scan_sns_t * ptrActiveScan);
-void InitCapSenseClock(void);
-
 
 /*******************************************************************************
 * Interrupt configuration
@@ -102,7 +104,7 @@ const cy_stc_sysint_t EZI2C_ISR_cfg = {
 /*******************************************************************************
 * Global variables
 *******************************************************************************/
-DigitalOut ledStatus(LED_RED);
+DigitalOut ledStatus(CYBSP_USER_LED);
 Semaphore capsense_sem;
 EventQueue queue;
 cy_stc_scb_ezi2c_context_t EZI2C_context;
@@ -110,31 +112,44 @@ uint32_t prevBtn0Status = 0u;
 uint32_t prevBtn1Status = 0u;
 uint32_t prevSliderPos = 0u;
 
+/* SysPm callback params */
+cy_stc_syspm_callback_params_t callbackParams = 
+{
+    .base       = CYBSP_CSD_HW,
+    .context    = &cy_capsense_context
+};
 
-/*****************************************************************************
+cy_stc_syspm_callback_t capsenseDeepSleepCb = 
+{
+    Cy_CapSense_DeepSleepCallback,  
+    CY_SYSPM_DEEPSLEEP,
+    (CY_SYSPM_SKIP_CHECK_FAIL | CY_SYSPM_SKIP_BEFORE_TRANSITION | CY_SYSPM_SKIP_AFTER_TRANSITION),
+    &callbackParams,
+    NULL, 
+    NULL
+};
+
+
+/*******************************************************************************
 * Function Name: main()
-******************************************************************************
+********************************************************************************
 * Summary:
 *   Main function that starts a thread for CapSense scan and enters a forever
 *   wait state. 
 *
-*****************************************************************************/
+*******************************************************************************/
 int main(void)
 {
-    /* Configure AMUX bus for CapSense */
-    init_cycfg_routing();
-    
-    /* Configure PERI clocks for CapSense */
-    InitCapSenseClock(); 
-    
+    cybsp_init();
     InitTunerCommunication();
-    
+
     /* Initialize the CSD HW block to the default state. */
     cy_status status = Cy_CapSense_Init(&cy_capsense_context);
+
     if(CY_RET_SUCCESS != status)
     {
         printf("CapSense initialization failed. Status code: %lu\r\n", status);
-        wait(osWaitForever);
+        ThisThread::sleep_for(osWaitForever);
     }
     
     /* Initialize CapSense interrupt */
@@ -144,7 +159,9 @@ int main(void)
 
     /* Initialize the CapSense firmware modules. */
     Cy_CapSense_Enable(&cy_capsense_context);
-    Cy_CapSense_RegisterCallback(CY_CAPSENSE_END_OF_SCAN_E, CapSenseEndOfScanCallback, &cy_capsense_context);
+    Cy_SysPm_RegisterCallback(&capsenseDeepSleepCb);
+    Cy_CapSense_RegisterCallback(CY_CAPSENSE_END_OF_SCAN_E, 
+                                 CapSenseEndOfScanCallback, &cy_capsense_context);
     
     /* Create a thread to run CapSense scan periodically using an event queue
      * dispatcher.
@@ -159,26 +176,41 @@ int main(void)
      */
     Cy_CapSense_ScanAllWidgets(&cy_capsense_context); 
     
-    printf("\r\nApplication has started. Touch any CapSense button or slider.\r\n");
-    wait(osWaitForever);
-    
+    printf("Application has started. Touch any CapSense button or slider.\r\n");
+
+    /* The EZI2C pins for the target CYW9P62S1_43012EVB_01 are P1[0] and P1[1].
+     * The SCB associated with these pins is not deep sleep wake-up capable.
+     * i.e. It cannot wake up the device from deep sleep. To enable
+     * communication with the CapSense Tuner, deep sleep is locked for this
+     * target. Remove sleep_manager_lock_deep_sleep() function to allow the
+     * device to enter deep sleep.
+     */
+
+    #ifdef TARGET_CYW9P62S1_43012EVB_01
+    sleep_manager_lock_deep_sleep();
+    #endif
+
+    ThisThread::sleep_for(osWaitForever);
 }
 
 
-/*****************************************************************************
+/*******************************************************************************
 * Function Name: RunCapSenseScan()
-******************************************************************************
+********************************************************************************
 * Summary:
 *   This function starts the scan, and processes the touch status. It is
 * periodically called by an event dispatcher. 
 *
-*****************************************************************************/
+*******************************************************************************/
 void RunCapSenseScan(void)
 {
+    Cy_CapSense_Wakeup(&cy_capsense_context);
+
     if (CY_CAPSENSE_NOT_BUSY == Cy_CapSense_IsBusy(&cy_capsense_context))
     {
         Cy_CapSense_ScanAllWidgets(&cy_capsense_context);  
-    } 
+    }
+ 
     capsense_sem.acquire();
     Cy_CapSense_ProcessAllWidgets(&cy_capsense_context);
     Cy_CapSense_RunTuner(&cy_capsense_context);
@@ -192,24 +224,12 @@ void RunCapSenseScan(void)
 *
 * Summary:
 *   This function performs the following functions:
-*       - Initializes SCB block for operation in EZI2C mode
-*       - Configures EZI2C pins
-*       - Configures EZI2C clock
+*       - Initializes SCB block to operate in EZI2C mode
 *       - Sets communication data buffer to CapSense data structure
 *
 *******************************************************************************/
 void InitTunerCommunication(void)
 {
-    /* Initialize EZI2C pins */
-    Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);
-    Cy_GPIO_Pin_Init(CYBSP_EZI2C_SDA_PORT, CYBSP_EZI2C_SDA_PIN, &CYBSP_EZI2C_SDA_config);
-    
-    /* Configure the peripheral clock for EZI2C */
-    Cy_SysClk_PeriphAssignDivider(PCLK_SCB3_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
-    Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
-    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1U, 7U);
-    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
-    
     Cy_SCB_EZI2C_Init(CYBSP_CSD_COMM_HW, &CYBSP_CSD_COMM_config, &EZI2C_context);
 
     /* Initialize and enable EZI2C interrupts */
@@ -242,7 +262,7 @@ void ProcessTouchStatus(void)
     uint32_t currBtn0Status = Cy_CapSense_IsSensorActive(CY_CAPSENSE_BUTTON0_WDGT_ID, CY_CAPSENSE_BUTTON0_SNS0_ID, &cy_capsense_context);        
     uint32_t currBtn1Status = Cy_CapSense_IsSensorActive(CY_CAPSENSE_BUTTON1_WDGT_ID, CY_CAPSENSE_BUTTON1_SNS0_ID, &cy_capsense_context);       
     cy_stc_capsense_touch_t *sldrTouch = Cy_CapSense_GetTouchInfo(CY_CAPSENSE_LINEARSLIDER0_WDGT_ID, &cy_capsense_context);
-
+    
     if(currBtn0Status != prevBtn0Status)
     {
         printf("Button_0 status: %lu\r\n", currBtn0Status);
@@ -266,7 +286,7 @@ void ProcessTouchStatus(void)
         }
     }
 
-    ledStatus = (currBtn0Status || currBtn1Status || (sldrTouch->numPosition == SLIDER_NUM_TOUCH)) ? LED_ON : LED_OFF;
+    ledStatus = (currBtn0Status || currBtn1Status || (SLIDER_NUM_TOUCH == sldrTouch->numPosition)) ? LED_ON : LED_OFF;
 }
 
 
@@ -282,48 +302,34 @@ void EZI2C_InterruptHandler(void)
     Cy_SCB_EZI2C_Interrupt(CYBSP_CSD_COMM_HW, &EZI2C_context);
 }
 
-/*****************************************************************************
+
+/*******************************************************************************
 * Function Name: CapSense_InterruptHandler()
-******************************************************************************
+********************************************************************************
 * Summary:
 *  Wrapper function for handling interrupts from CSD block.
 *
-*****************************************************************************/
+*******************************************************************************/
 void CapSense_InterruptHandler(void)
 {
     Cy_CapSense_InterruptHandler(CYBSP_CSD_HW, &cy_capsense_context);
 }
 
 
-/*****************************************************************************
+/*******************************************************************************
 * Function Name: CapSenseEndOfScanCallback()
-******************************************************************************
+********************************************************************************
 * Summary:
 *  This function releases a semaphore to indicate end of a CapSense scan.
 *
 * Parameters:
 *  cy_stc_active_scan_sns_t* : pointer to active sensor details.
 *
-*****************************************************************************/
+*******************************************************************************/
 void CapSenseEndOfScanCallback(cy_stc_active_scan_sns_t * ptrActiveScan)
 {
     capsense_sem.release();
 }
 
-
-/*****************************************************************************
-* Function Name: InitCapSenseClock()
-******************************************************************************
-* Summary:
-*  This function configures the peripheral clock for CapSense.  
-*
-*****************************************************************************/
-void InitCapSenseClock(void)
-{
-    Cy_SysClk_PeriphAssignDivider(PCLK_CSD_CLOCK, CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
-    Cy_SysClk_PeriphDisableDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
-    Cy_SysClk_PeriphSetDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM, 0u);
-    Cy_SysClk_PeriphEnableDivider(CYBSP_CSD_CLK_DIV_HW, CYBSP_CSD_CLK_DIV_NUM);
-}
 
 /* [] END OF FILE */
