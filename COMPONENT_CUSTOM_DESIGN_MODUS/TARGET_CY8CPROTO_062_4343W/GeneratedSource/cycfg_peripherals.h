@@ -4,11 +4,13 @@
 * Description:
 * Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../mbed-os/targets/TARGET_Cypress/TARGET_PSOC6/psoc6pdl): 1.4.0.1889
+* Tools Package 2.1.0.1266
+* psoc6pdl 1.6.1.4886
+* personalities_2.0 2.0.0.0
+* udd 1.2.0.473
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +32,6 @@
 #include "cycfg_notices.h"
 #include "cy_sysclk.h"
 #include "cy_csd.h"
-#include "cy_scb_ezi2c.h"
-#if defined (CY_USING_HAL)
-	#include "cyhal_hwmgr.h"
-#endif //defined (CY_USING_HAL)
 
 #if defined(__cplusplus)
 extern "C" {
@@ -75,15 +73,8 @@ extern "C" {
 #define CintB_PORT_NUM 7u
 #define CYBSP_CSD_HW CSD0
 #define CYBSP_CSD_IRQ csd_interrupt_IRQn
-#define CYBSP_CSD_COMM_ENABLED 1U
-#define CYBSP_CSD_COMM_HW SCB8
-#define CYBSP_CSD_COMM_IRQ scb_8_interrupt_IRQn
 
 extern cy_stc_csd_context_t cy_csd_0_context;
-extern const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config;
-#if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_CSD_COMM_obj;
-#endif //defined (CY_USING_HAL)
 
 void init_cycfg_peripherals(void);
 

@@ -7,6 +7,10 @@
             "target.components_remove": ["BSP_DESIGN_MODUS"],
             "target.components_add":["CUSTOM_DESIGN_MODUS"]
         },
+        "CY8CPROTO_062S3_4343W": {
+            "target.components_remove": ["BSP_DESIGN_MODUS"],
+            "target.components_add":["CUSTOM_DESIGN_MODUS"]
+        },
         "CY8CKIT_062S2_43012": {
             "target.components_remove": ["BSP_DESIGN_MODUS"],
             "target.components_add":["CUSTOM_DESIGN_MODUS"]

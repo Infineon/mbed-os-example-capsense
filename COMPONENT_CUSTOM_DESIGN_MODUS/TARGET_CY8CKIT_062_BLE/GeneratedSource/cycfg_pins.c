@@ -4,11 +4,13 @@
 * Description:
 * Pin configuration
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../mbed-os/targets/TARGET_Cypress/TARGET_PSOC6/psoc6pdl): 1.4.0.1889
+* Tools Package 2.1.0.1266
+* psoc6pdl 1.6.1.4886
+* personalities_2.0 2.0.0.0
+* udd 1.2.0.473
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -96,54 +98,6 @@ const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config =
 		.type = CYHAL_RSC_GPIO,
 		.block_num = CYBSP_CSD_TX_PORT_NUM,
 		.channel_num = CYBSP_CSD_TX_PIN,
-	};
-#endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SCL_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = CYBSP_EZI2C_SCL_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_EZI2C_SCL_obj = 
-	{
-		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_EZI2C_SCL_PORT_NUM,
-		.channel_num = CYBSP_EZI2C_SCL_PIN,
-	};
-#endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SDA_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = CYBSP_EZI2C_SDA_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_EZI2C_SDA_obj = 
-	{
-		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_EZI2C_SDA_PORT_NUM,
-		.channel_num = CYBSP_EZI2C_SDA_PIN,
 	};
 #endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_SWO_config = 
@@ -474,16 +428,6 @@ void init_cycfg_pins(void)
 
 #if defined (CY_USING_HAL)
 	cyhal_hwmgr_reserve(&CYBSP_CSD_TX_obj);
-#endif //defined (CY_USING_HAL)
-
-	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);
-#if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&CYBSP_EZI2C_SCL_obj);
-#endif //defined (CY_USING_HAL)
-
-	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SDA_PORT, CYBSP_EZI2C_SDA_PIN, &CYBSP_EZI2C_SDA_config);
-#if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&CYBSP_EZI2C_SDA_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_SWO_PORT, CYBSP_SWO_PIN, &CYBSP_SWO_config);

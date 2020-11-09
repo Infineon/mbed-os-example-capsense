@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Design version="12" device_library_hint_path="../../mbed-os/targets/TARGET_Cypress/TARGET_PSOC6/psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
-    <ToolInfo version="1.0.0"/>
+    <ToolInfo version="2.1.0.1266"/>
     <Devices>
         <Device mpn="CY8C6247FDI-D52">
             <BlockConfig>
@@ -72,30 +72,10 @@
                     </Personality>
                 </Block>
                 <Block location="ioss[0].port[1].pin[0]">
-                    <Alias value="CYBSP_EZI2C_SCL"/>
-                    <Personality template="mxs40pin" version="1.1">
-                        <Param id="DriveModes" value="CY_GPIO_DM_OD_DRIVESLOW"/>
-                        <Param id="initialState" value="1"/>
-                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                        <Param id="sioOutputBuffer" value="true"/>
-                        <Param id="inFlash" value="true"/>
-                    </Personality>
+                    <Alias value="CYBSP_I2C_SCL"/>
                 </Block>
                 <Block location="ioss[0].port[1].pin[1]">
-                    <Alias value="CYBSP_EZI2C_SDA"/>
-                    <Personality template="mxs40pin" version="1.1">
-                        <Param id="DriveModes" value="CY_GPIO_DM_OD_DRIVESLOW"/>
-                        <Param id="initialState" value="1"/>
-                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                        <Param id="sioOutputBuffer" value="true"/>
-                        <Param id="inFlash" value="true"/>
-                    </Personality>
+                    <Alias value="CYBSP_I2C_SDA"/>
                 </Block>
                 <Block location="ioss[0].port[6].pin[4]">
                     <Alias value="CYBSP_SWO"/>
@@ -284,15 +264,6 @@
                 </Block>
                 <Block location="scb[7]">
                     <Alias value="CYBSP_CSD_COMM"/>
-                    <Personality template="mxs40ezi2c" version="1.0">
-                        <Param id="DataRate" value="400"/>
-                        <Param id="NumOfAddr" value="CY_SCB_EZI2C_ONE_ADDRESS"/>
-                        <Param id="SlaveAddress1" value="8"/>
-                        <Param id="SlaveAddress2" value="9"/>
-                        <Param id="SubAddrSize" value="CY_SCB_EZI2C_SUB_ADDR16_BITS"/>
-                        <Param id="EnableWakeup" value="false"/>
-                        <Param id="inFlash" value="true"/>
-                    </Personality>
                 </Block>
                 <Block location="srss[0].clock[0]">
                     <Personality template="mxs40sysclocks" version="1.2"/>
@@ -459,18 +430,6 @@
                     <Port name="ioss[0].port[0].pin[1].analog[0]"/>
                     <Port name="srss[0].clock[0].wco[0].wco_out[0]"/>
                 </Net>
-                <Net>
-                    <Port name="ioss[0].port[1].pin[0].digital_inout[0]"/>
-                    <Port name="scb[7].i2c_scl[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[1].pin[1].digital_inout[0]"/>
-                    <Port name="scb[7].i2c_sda[0]"/>
-                </Net>
-                <Net>
-                    <Port name="peri[0].div_8[1].clk[0]"/>
-                    <Port name="scb[7].clock[0]"/>
-                </Net>
                 <Mux name="sense" location="csd[0].csd[0]">
                     <Arm>
                         <Port name="ioss[0].port[7].pin[7].analog[0]"/>
@@ -504,6 +463,5 @@
             <Netlist/>
         </Device>
     </Devices>
-    <Libraries/>
     <ConfiguratorData/>
 </Design>

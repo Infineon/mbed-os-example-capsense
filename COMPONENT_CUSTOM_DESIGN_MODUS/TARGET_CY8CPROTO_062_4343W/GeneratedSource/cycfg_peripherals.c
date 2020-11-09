@@ -4,11 +4,13 @@
 * Description:
 * Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
-* Device Configurator: 2.0.0.1483
-* Device Support Library (../../../mbed-os/targets/TARGET_Cypress/TARGET_PSOC6/psoc6pdl): 1.4.0.1889
+* Tools Package 2.1.0.1266
+* psoc6pdl 1.6.1.4886
+* personalities_2.0 2.0.0.0
+* udd 1.2.0.473
 *
 ********************************************************************************
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,30 +32,9 @@ cy_stc_csd_context_t cy_csd_0_context =
 {
 	.lockKey = CY_CSD_NONE_KEY,
 };
-const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config = 
-{
-	.numberOfAddresses = CY_SCB_EZI2C_ONE_ADDRESS,
-	.slaveAddress1 = 8U,
-	.slaveAddress2 = 0U,
-	.subAddressSize = CY_SCB_EZI2C_SUB_ADDR16_BITS,
-	.enableWakeFromSleep = true,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_CSD_COMM_obj = 
-	{
-		.type = CYHAL_RSC_SCB,
-		.block_num = 8U,
-		.channel_num = 0U,
-	};
-#endif //defined (CY_USING_HAL)
 
 
 void init_cycfg_peripherals(void)
 {
 	Cy_SysClk_PeriphAssignDivider(PCLK_CSD_CLOCK, CY_SYSCLK_DIV_8_BIT, 0U);
-
-	Cy_SysClk_PeriphAssignDivider(PCLK_SCB8_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
-#if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&CYBSP_CSD_COMM_obj);
-#endif //defined (CY_USING_HAL)
 }
